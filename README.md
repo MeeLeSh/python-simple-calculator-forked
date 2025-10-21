@@ -7,12 +7,12 @@ It allows users to perform basic mathematical operations like addition, subtract
 ---
 
 ## ⚙️ Features
-- ➕ **Addition**
-- ➖ **Subtraction**
-- ✖️ **Multiplication**
-- ➗ **Division** (with zero-division protection)
-- 🧩 **Remainder (Modulus)**
-- 💥 **Power (Exponentiation)**
+- **Addition**
+- **Subtraction**
+- **Multiplication**
+- **Division** (with zero-division protection)
+- **Remainder (Modulus)**
+- **Power (Exponentiation)**
 
 ---
 
