@@ -62,7 +62,7 @@ Make sure you have **Python 3** installed.
 Then run the script using your terminal or command prompt:
 
 ```bash
-python calculator.py
+python3 calculator.py
 ```
 
 ---
