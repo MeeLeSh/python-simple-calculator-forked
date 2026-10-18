@@ -1,53 +1,50 @@
-print("Welcome to our Arithmetic Calculator")
 
-op=input("""Operations:
-"+"  - Add,
-"-"  - Subtract,
-"*"  - Multiply,
-"/"  - Divide,
-"%"  - Remainder,
-"**" - Power,
-Enter the operator: """)
 
-if op not in ("+", "-", "*", "/", "%", "**"):
-    print("Enter a valid operator")
-else:
-    if op in ("/"):
-        num1=float(input("Enter dividend: "))
-        num2=float(input("Enter divisor: "))
-    elif op in ("**"):
-        num1=float(input("Enter base: "))
-        num2=float(input("Enter exponent: "))
-    elif op in ("/","%"):
-        num1=float(input("Enter dividend: "))
-        num2=float(input("Enter divisor: "))
-    else:
-        num1=float(input("Enter first number: "))
-        num2=float(input("Enter second number: "))
+
+def Calculate(a,b,op):
+    result=0
     if op=="+":
-        print("Adding...")
-        print("Result:",num1+num2)
+        result=a+b
     elif op=="-":
-        print("Subtracting...")
-        print("Result:",num1-num2)
+        result=a-b
     elif op=="*":
-        print("Multiplying...")
-        print("Result:",num1*num2)
+        result=a*b
     elif op=="/":
-        if num2==0:
-            print("Division by 0 is not possible")
-        else:
-            print("Dividing...")
-            print("Result:",num1/num2)
+        try:
+            result=a/b
+        except:
+            print("Error")
     elif op=="%":
-        if num2==0:
-            print("Division by 0 is not possible")
-        else:
-            print("Finding Remainder...")
-            print("Result:",num1%num2)
+        result=a%b
     elif op=="**":
-        print("Evaluating...")
-        print("Result:",num1**num2)
+        result=a**b
+    return result
 
-print("Thanks for using this simple arithmetic calculator")
 
+def main():
+ print("Welcome to our Arithmetic Calculator")
+ op=input("""Operations:
+ "+" - Add,
+ "-" - Subtract,
+ "*" - Multiply,
+ "/" - Divide,
+ "%" - Remainder,
+ "**" - Power,
+ Enter the operator: """)
+
+ if op not in ("+","-","*","/","%","**"):
+  print("Enter a valid operator")
+ else:
+  num1=float(input("Enter first number: "))
+  num2=float(input("Enter second number: "))
+  if op=="/" or op=="%":
+   if num2==0: print("Division by 0 is not possible")
+   else:
+    print("Result:",Calculate(num1,num2,op))
+  else:
+   print("Result:",Calculate(num1,num2,op))
+ print("Thanks for using this simple arithmetic calculator")
+
+
+if __name__=="__main__":
+ main()
