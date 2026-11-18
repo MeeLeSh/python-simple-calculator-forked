@@ -1,3 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simple-calculator"
+dynamic = ["version"]
+description = "Простой арифметический калькулятор: пакет, CLI на click и пайплайн на Snakemake"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=24.0",
+    "mypy>=1.10",
+    "pytest>=8.0",
+    "ruff>=0.6",
+    "snakemake>=9.0",
+]
+
+[project.scripts]
+calc = "calc.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.dynamic]
+version = { attr = "calc.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.ruff]
 line-length = 88
@@ -33,3 +67,6 @@ warn_return_any = true
 warn_unused_configs = true
 check_untyped_defs = true
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

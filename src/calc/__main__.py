@@ -1,0 +1,6 @@
+"""Запуск калькулятора как модуля: ``python -m calc``."""
+
+from calc.cli import main
+
+if __name__ == "__main__":
+    main()
