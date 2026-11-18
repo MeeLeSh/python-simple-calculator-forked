@@ -1,81 +1,167 @@
-# python-simple-calculator
+# simple-calculator
 
-### 📘 Overview
-This is a **simple command-line arithmetic calculator** written in **Python**.  
-It allows users to perform basic mathematical operations like addition, subtraction, multiplication, division, remainder, and exponentiation — all through an interactive input prompt.
+Арифметический калькулятор на Python, оформленный как полноценный проект:
+**пакет** `calc`, **командная строка** на `click` и **пайплайн** на Snakemake.
 
----
+Проект переработан в рамках практической работы № 3 «Шаблонизация. Python пакеты
+и CLI. Snakemake»: первая версия была одним файлом `calculator.py` на 50 строк,
+теперь это устанавливаемый пакет с тестами и единой точкой входа.
 
-## ⚙️ Features
-- **Addition**
-- **Subtraction**
-- **Multiplication**
-- **Division** (with zero-division protection)
-- **Remainder (Modulus)**
-- **Power (Exponentiation)**
+## Возможности
 
----
+- операции `+`, `-`, `*`, `/`, `%`, `**`;
+- CLI: отдельная команда на каждую операцию плюс универсальная `compute`;
+- интерактивный режим `repl` — как в первой версии калькулятора;
+- пакетная обработка выражений из CSV (`batch`) и отчёт по результатам (`summary`);
+- пайплайн `snakemake`: проверки → расчёты → отчёт;
+- тесты на `pytest`, линтеры `ruff` / `black` / `mypy`, CI в GitHub Actions.
 
-## 🖥️ How It Works
-1. When you run the program, it displays:
-   ```python
-   Welcome to our Arithmetic Calculator
-   ```
-2. It then asks you to choose an operation:
-   ```python
-   Operations:
-    "+"  - Add,
-    "-"  - Subtract,
-    "*"  - Multiply,
-    "/"  - Divide,
-    "%"  - Remainder,
-    "**" - Power,
-   Enter the operator:
-   ```
-3. Based on your choice, you will be asked to enter two numbers (e.g., dividend and divisor for division).  
-4. The calculator performs the selected operation and prints the result.
+## Структура проекта
 
----
-
-## 🧾 Example
-```bash
-Welcome to our Arithmetic Calculator
-Operations:
-"+"  - Add,
-"-"  - Subtract,
-"*"  - Multiply,
-"/"  - Divide,
-"%"  - Remainder,
-"**" - Power,
-Enter the operator: *
-Enter first number: 5
-Enter second number: 7
-Multiplying...
-Result: 35.0
-Thanks for using this simple arithmetic calculator
+```
+simple-calculator/
+├── data/
+│   └── expressions.csv      # входные данные для пайплайна
+├── reports/                 # результаты пайплайна (создаётся автоматически)
+├── src/
+│   └── calc/                # сам пакет
+│       ├── __init__.py      # версия и публичный API
+│       ├── __main__.py      # запуск через python -m calc
+│       ├── cli.py           # команды click
+│       ├── core.py          # чистая логика: evaluate()
+│       ├── errors.py        # исключения калькулятора
+│       └── io.py            # парсинг чисел и форматирование результата
+├── tests/
+│   ├── test_cli.py          # тесты командной строки
+│   └── test_core.py         # тесты логики
+├── .github/workflows/
+│   └── code-quality.yml     # CI: линтеры, типы, тесты
+├── Snakefile                # единая точка входа пайплайна
+├── pyproject.toml           # метаданные, зависимости, настройки инструментов
+└── README.md
 ```
 
----
+## Установка
 
-## 🚀 How to Run
-Make sure you have **Python 3** installed.  
-Then run the script using your terminal or command prompt:
+Через [uv](https://docs.astral.sh/uv/) (быстрее):
 
 ```bash
-python3 calculator.py
+uv venv --python 3.12
+uv pip install -e ".[dev]"
 ```
 
----
+Или через обычный `venv` + `pip`:
 
-## 🧠 Concepts Used
-- Conditional statements (`if`, `elif`, `else`)
-- Input handling with `input()`
-- Type conversion using `float()`
-- Basic arithmetic operators in Python
+```bash
+python -m venv .venv
 
----
+# Windows
+.venv\Scripts\activate
+# Linux / macOS
+source .venv/bin/activate
 
-## 🧰 Future Improvements
-- Add support for more operations (like square root, logarithm, etc.)
-- Allow multiple operations in one session
-- Add a GUI using `tkinter` or a web version using Flask
+pip install -e ".[dev]"
+```
+
+`-e` — режим разработки: правки в `src/` сразу видны без переустановки.
+`[dev]` — дополнительно ставит `pytest`, `ruff`, `black`, `mypy`, `snakemake`.
+
+## Командная строка
+
+После установки в окружении появляется команда `calc`. То же самое доступно
+как `python -m calc`.
+
+```bash
+calc add 2 3          # 5
+calc sub 10 4         # 6
+calc mul 6 7          # 42
+calc div 5 2          # 2.5
+calc mod 10 3         # 1
+calc pow 2 10         # 1024
+calc compute 2 3 +    # 5 — произвольная операция
+calc --help
+calc --version        # calc, version 0.3.0
+```
+
+Целые результаты печатаются без хвоста `.0`, числа принимаются и с запятой
+(`calc add 7,5 2,5` → `10`).
+
+Ошибки — понятным сообщением и с ненулевым кодом возврата:
+
+```bash
+$ calc div 1 0
+Error: Деление на 0 невозможно
+
+$ calc add два 3
+Error: Не число: 'два'
+```
+
+Интерактивный режим (прежний UX первой версии):
+
+```bash
+calc repl
+```
+
+Пакетная обработка и отчёт:
+
+```bash
+calc batch data/expressions.csv reports/results.csv
+# Посчитано выражений: 9, ошибок: 2
+
+calc summary reports/results.csv reports/summary.txt
+# Всего выражений: 9
+# Успешно: 7
+# С ошибкой: 2
+#   1 / 0: Деление на 0 невозможно
+#   5 ^ 2: Неизвестная операция: '^'
+```
+
+## Пайплайн
+
+Единая точка входа — `snakemake`. Правила объявлены в `Snakefile`:
+
+| Правило    | Что делает                                   | Результат                |
+|------------|----------------------------------------------|--------------------------|
+| `quality`  | `ruff` + `black` + `mypy` + `pytest`         | `reports/quality.ok`     |
+| `compute`  | считает выражения из `data/expressions.csv`  | `reports/results.csv`    |
+| `summary`  | собирает отчёт по результатам                | `reports/summary.txt`    |
+| `all`      | цель по умолчанию, собирает всё перечисленное| —                        |
+
+```bash
+snakemake --cores 1            # выполнить весь пайплайн
+snakemake --cores 1 --dry-run  # посмотреть план, ничего не запуская
+snakemake --cores 1 -F         # принудительно пересчитать всё заново
+```
+
+Snakemake сам разбирается, что устарело: если поменялся только `src/calc/core.py`,
+пересчитаются `compute` и `summary`, а `quality` — нет.
+
+## Разработка
+
+Инструменты уже настроены в `pyproject.toml`:
+
+```bash
+ruff check .        # стиль и потенциальные ошибки
+black --check .     # форматирование (black . — применить)
+mypy src tests      # проверка типов
+pytest              # тесты
+```
+
+Все проверки разом запускает пайплайн:
+
+```bash
+snakemake --cores 1
+```
+
+Те же команды выполняет CI (`.github/workflows/code-quality.yml`) на каждый push.
+
+## Что изменилось после рефакторинга
+
+| Было (первая версия)                          | Стало                                              |
+|-----------------------------------------------|----------------------------------------------------|
+| один файл `calculator.py`                     | пакет `src/calc` из пяти модулей                   |
+| `input()` и `print()` вперемешку с логикой    | `core.evaluate()` — чистая функция без ввода-вывода|
+| голый `except:` и печать ошибок в консоль     | свои исключения и понятные сообщения               |
+| запуск только как `python3 calculator.py`     | `calc ...` и `python -m calc`                      |
+| проверить нечего                               | 30 тестов на логику и CLI                          |
+| нет единой точки входа                         | `Snakefile` с правилами `quality` / `compute` / `summary` |
